@@ -1,0 +1,23 @@
+h1 {
+  text-align: center;
+  color: black;
+  font-size: 30px;
+}
+.InputContainer {
+  width: 97%;
+  margin: 5px auto;
+  max-width: 400px;
+}
+.taskItem {
+  display: flex;
+  margin: 5px 10px;
+  align-items: center;
+}
+.taskItem .delBtn {
+  float: right;
+  margin-left: auto;
+}
+.taskContainer {
+  margin: 15px auto;
+  max-width: 400px;
+}
