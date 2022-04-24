@@ -9,23 +9,16 @@ import {
   updateTask,
   delTask
 } from "../Firebase/firebase.util";
-import {
-  setTaskList,
-  addTaskToList,
-  deleteTask,
-  changeTaskStatus
-} from "../Redux/TaskList/taskList.actions";
-//import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { TaskItem } from "../Components/TaskItem";
-import { connect } from "react-redux";
-class ReduxBasedPage extends React.Component {
-  constructor(props) {
-    super(props);
+
+export class ReduxBasedPage extends React.Component {
+  constructor() {
+    super();
     this.state = {
       taskList: null,
       input: ""
     };
-
     this.getData();
     this.addItem = this.addItem.bind(this);
     this.delItem = this.delItem.bind(this);
@@ -33,33 +26,50 @@ class ReduxBasedPage extends React.Component {
   }
   async getData() {
     const data = await getTasks();
-    console.log(data);
-    this.props.setTaskList(data);
+    this.setState({ taskList: data });
   }
   //adding data
   addItem = async () => {
     let newTask = { name: this.state.input, completed: false };
     let id = await addTask(newTask);
 
-    this.props.addTaskToList({ ...newTask, id });
+    this.setState({ taskList: [...this.state.taskList, { ...newTask, id }] });
   };
 
   //delet data
   delItem = (taskToDel) => {
+    let newT = [...this.state.taskList];
+    let index;
+    // newT.filter(task => task.name !== taskToDel.name);
+    for (let i = 0; i < newT.length; i++) {
+      if (newT[i].name === taskToDel.name) {
+        index = i;
+      }
+    }
+
+    newT.splice(index, 1);
+    // console.log(newT, taskToDel);
     delTask(taskToDel);
-    this.props.deleteTask(taskToDel);
+    this.setState({ taskList: [...newT] });
   };
 
   //update
   completedChange = (checkValue, taskToUpdate) => {
-    this.props.changeTaskStatus(checkValue, taskToUpdate);
+    let newT = [...this.state.taskList];
+
+    for (let i = 0; i < newT.length; i++) {
+      if (newT[i].name === taskToUpdate.name) {
+        newT[i].completed = checkValue;
+      }
+    }
+    this.setState({ taskList: [...newT] });
     updateTask(checkValue, taskToUpdate);
   };
 
   render() {
     return (
       <div>
-        <h1>To-Do List (Redux & firebase)</h1>
+        <h1>To-Do List (State & firebase)</h1>
         <div className="InputContainer">
           <InputGroup>
             <Input
@@ -81,13 +91,13 @@ class ReduxBasedPage extends React.Component {
           {/* <Input placeholder="Add your task here" /> */}
         </div>
 
-        {this.props.taskList === null ? (
+        {this.state.taskList === null ? (
           "Loading..."
-        ) : this.props.taskList.length === 0 ? (
+        ) : this.state.taskList.length === 0 ? (
           <div className="taskContainer">Empty! Please add task</div>
         ) : (
           <div className="taskContainer">
-            {this.props.taskList.map((task) => {
+            {this.state.taskList.map((task) => {
               return (
                 <TaskItem
                   key={task.id}
@@ -103,16 +113,3 @@ class ReduxBasedPage extends React.Component {
     );
   }
 }
-
-const mapStateToProps = (state) => ({
-  taskList: state.taskList.taskList
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  setTaskList: (data) => dispatch(setTaskList(data)),
-  addTaskToList: (task) => dispatch(addTaskToList(task)),
-  deleteTask: (task) => dispatch(deleteTask(task)),
-  changeTaskStatus: (checkedValue, task) =>
-    dispatch(changeTaskStatus(checkedValue, task))
-});
-export default connect(mapStateToProps, mapDispatchToProps)(ReduxBasedPage);

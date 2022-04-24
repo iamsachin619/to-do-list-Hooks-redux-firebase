@@ -1,7 +1,7 @@
 import "./styles.css";
 import { Switch, Route, Link } from "react-router-dom";
 import { HookBasedPage } from "./Pages/HookBasedPage";
-import { ReduxBasedPage } from "./Pages/ReduxBasedPage";
+import ReduxBasedPage from "./Pages/ReduxBasedPage";
 export default function App() {
   return (
     <div className="App">
